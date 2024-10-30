@@ -1,10 +1,9 @@
 #include <Log.hpp>
+#include <Settings.hpp>
 #include "raylib.h"
 
+#include <iostream>
 
-const unsigned short FPS = 60;
-const unsigned short WINDOWWIDTH = 800;
-const unsigned short WINDOWHEIGHT = 600;
 const Color BACKGROUNDCOLOR = WHITE;
 
 int main() {
@@ -13,20 +12,36 @@ int main() {
     INFO_LOG("Hier werde ich die einzelnen Funktionen von GFW Testen und versuchen zu erklären");
 
     //Damit Raylib nicht so gesprächig ist
+#ifdef DEBUG
     SetTraceLogLevel(4);
+    GFW::Log::Instance()->SetLogLevel(GFW::LogLevel::LOG_TRACE);
+#else
+    SetTraceLogLevel(4);
+    GFW::Log::Instance()->SetLogLevel(GFW::LogLevel::LOG_WARNING);
+#endif
 
+    GFW::Settings::Instance()->Load("data/settings.lua");
+    GFW::Settings::Instance()->Save("data/settings_new.lua");
+    //GFW::Log::Instance()->SetLogLevel(GFW::Settings::Instance()->LogLevel());
+
+    GFW::Settings::Instance()->MusicVolume(3.0);
+    GFW::Settings::Instance()->EffectVolume(0.25);
 
     //Fenster erstellen ... muss in eine extra Klasse
-    InitWindow(WINDOWWIDTH, WINDOWHEIGHT, "GFW Test");
-    SetTargetFPS(FPS);
+    InitWindow(GFW::Settings::Instance()->WindowWidth(), GFW::Settings::Instance()->WindowHeight(), "GFW Test");
+    SetTargetFPS(GFW::Settings::Instance()->FPS());
+    SetExitKey(GFW::Settings::Instance()->ExitKey());
 
     Texture2D LOGO = LoadTexture("data/logo.png");
+
+    int texX = (GFW::Settings::Instance()->WindowWidth() - LOGO.width) / 2;
+    int texY = (GFW::Settings::Instance()->WindowHeight() - LOGO.height) / 2;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(BACKGROUNDCOLOR);
 
-        DrawTexture(LOGO,208,108, BACKGROUNDCOLOR );
+        DrawTexture(LOGO,texX,texY, BACKGROUNDCOLOR );
 
         EndDrawing();
     }

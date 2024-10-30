@@ -14,6 +14,7 @@ project(
 #C++ Version
 set(CMAKE_CXX_STANDARD 23)
 
+add_definitions(-DDEBUG)
 
 #Wurzelverzeichnis setzen
 message("\n*******************************************************************************")
@@ -34,14 +35,13 @@ include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/src"
     "${CMAKE_SYSTEM_INCLUDE_PATH}"
+    "${PROJECT_SOURCE_DIR}/extra/"
     )
-
-
 
 #Quelltextdateien
 set(projectSOURCES
     src/Log.cpp
-
+    src/Settings.cpp
     TestApp/main.cpp
 
 )
@@ -49,6 +49,7 @@ set(projectSOURCES
 #Header
 set(projectHEADERS
     src/Log.hpp
+    src/Settings.hpp
 )
 
 #Anwendung erstellen
@@ -60,6 +61,7 @@ add_executable(${PROJECT_NAME}_Testapp
 #Linken
 target_link_libraries(${PROJECT_NAME}_Testapp
     raylib
+    lua
 )
 
 #Installationsverzeichnis festlegen

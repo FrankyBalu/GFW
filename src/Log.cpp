@@ -21,7 +21,15 @@
 
 GFW::Log *GFW::Log::_Instance = nullptr;
 
+
 GFW::Log::Log() {
+#ifndef _WIN64
+        static std::mutex myMutex;
+        std::ostringstream os;
+        os << "\033[2J" << "\033[H";
+        std::lock_guard<std::mutex> lock(myMutex);
+        std::clog << os.str();
+#endif
     _LogLevel = LOG_TRACE;
 }
 

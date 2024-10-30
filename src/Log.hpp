@@ -32,7 +32,7 @@
 //regelt wieviel platz für die Funktionsnamen gelassen wird
 #define NAME_WIDTH 30
 
-#define LOG_COLOR_RESET   "\033[0m"
+#define LOG_COLOR_RESET   "\033[39m\033[48;2m"
 #define LOG_COLOR_BLACK   "\033[30m"      /* Black */
 #define LOG_COLOR_RED     "\033[31m"      /* Red */
 #define LOG_COLOR_GREEN   "\033[32m"      /* Green */
@@ -73,13 +73,13 @@ namespace GFW {
             static std::mutex myMutex;
             std::ostringstream os;
             #ifdef _WIN64
-            os << LevelToName(level) << ": " << std::setw(NAME_WIDTH) << loc.function_name() << " (" << loc.line()
+            os << LevelToName(level) << ": " << std::setw(15) << loc.file_name() << std::setw(NAME_WIDTH) << loc.function_name() << " (" << loc.line()
             << "):" << std::boolalpha;
 
             ((os << ' ' << args), ...);
             os << std::endl;
             #else
-            os << LogLevelToColor(level) << LogLevelToName(level) << ": " << std::setw(NAME_WIDTH) << loc.function_name() << " (" << loc.line()
+            os << LogLevelToColor(level) << LogLevelToName(level) << ": [" << std::setw(15) << loc.file_name() << "] " << std::setw(NAME_WIDTH) << loc.function_name() << " (" << loc.line()
             << "):" << std::boolalpha;
             // fold expression:
             ((os << ' ' << args), ...);
@@ -123,28 +123,30 @@ namespace GFW {
             };
         }
 
+        // \033[38;2;<r>;<g>;<b>m     #Select RGB foreground color
+        // \033[48;2;<r>;<g>;<b>m     #Select RGB background color
         std::string LogLevelToColor(int level){
             switch (level){
                 case LOG_NONE:
                     return LOG_COLOR_BOLDRED;
                     break;
                 case LOG_ERROR:
-                    return LOG_COLOR_BOLDRED;
+                    return "\033[38;2;255;255;0;48;2;255;0;0m";
                     break;
                 case LOG_WARNING:
-                    return LOG_COLOR_BOLDYELLOW;
+                    return "\033[38;2;255;0;0;48;2;255;255;0m";
                     break;
                 case LOG_INFO:
-                    return LOG_COLOR_BOLDGREEN;
+                    return "\033[38;2;255;255;0;48;2;0;0;0m";
                     break;
                 case LOG_DEBUG:
-                    return LOG_COLOR_BOLDBLUE;
+                    return "\033[38;2;0;0;255;48;2;0;0;0m";
                     break;
                 case LOG_TRACE:
-                    return LOG_COLOR_BOLDWHITE;
+                    return "\033[38;2;0;255;0;48;2;0;0;0m";
                     break;
                 default:
-                    return LOG_COLOR_BOLDCYAN;
+                    return "\033[38;2;255;255;255;48;2;0;0;0m";
             };
         }
     };
@@ -153,11 +155,11 @@ namespace GFW {
 } // namespace GFW
 
 //FIXME: warum muss man die Loglevel in falscher Reihenfolge schrieben?
-#define ERROR_LOG(...) GFW::Log::Instance()->log_msg(LOG_TRACE, std::source_location::current(), __VA_ARGS__)
-#define WARN_LOG(...) GFW::Log::Instance()->log_msg(LOG_DEBUG, std::source_location::current(), __VA_ARGS__)
+#define ERROR_LOG(...) GFW::Log::Instance()->log_msg(LOG_ERROR, std::source_location::current(), __VA_ARGS__)
+#define WARN_LOG(...) GFW::Log::Instance()->log_msg(LOG_WARNING, std::source_location::current(), __VA_ARGS__)
 #define INFO_LOG(...) GFW::Log::Instance()->log_msg(LOG_INFO, std::source_location::current(), __VA_ARGS__)
-#define DEBUG_LOG(...) GFW::Log::Instance()->log_msg(LOG_WARNING, std::source_location::current(), __VA_ARGS__)
-#define TRACE_LOG(...) GFW::Log::Instance()->log_msg(LOG_ERROR, std::source_location::current(), __VA_ARGS__)
+#define DEBUG_LOG(...) GFW::Log::Instance()->log_msg(LOG_DEBUG, std::source_location::current(), __VA_ARGS__)
+#define TRACE_LOG(...) GFW::Log::Instance()->log_msg(LOG_TRACE, std::source_location::current(), __VA_ARGS__)
 
 
 #endif //GFW_LOG
